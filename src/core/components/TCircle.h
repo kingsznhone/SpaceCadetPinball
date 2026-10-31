@@ -1,0 +1,18 @@
+#pragma once
+#include "core/maths.h"
+#include "core/TEdgeSegment.h"
+namespace scp {
+
+class TCircle :
+	public TEdgeSegment
+{
+public:
+	circle_type Circle{};
+
+	TCircle(TCollisionComponent* collComp, char* activeFlag, unsigned int collisionGroup, vector2* center,
+	        float radius);
+	float FindCollisionDistance(const ray_type& ray) override;
+	void EdgeCollision(TBall* ball, float distance) override;
+	void place_in_grid(RectF* aabb) override;
+};
+} // namespace scp

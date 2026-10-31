@@ -1,0 +1,21 @@
+#pragma once
+#include "core/components/TLightGroup.h"
+namespace scp {
+
+class TLightBargraph :
+	public TLightGroup
+{
+public:
+	TLightBargraph(TPinballTable* table, int groupIndex);
+	~TLightBargraph() override;
+	int Message(MessageCode code, float value) override;
+	void Reset() override;
+
+	static void BargraphTimerExpired(int timerId, void* caller);
+
+	float* TimerTimeArray;
+	int TimerBargraph{};
+	int TimeIndex{};
+	int PlayerTimerIndexBackup[4]{};
+};
+} // namespace scp

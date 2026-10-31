@@ -6,10 +6,28 @@
 
 Reverse engineering of `3D Pinball for Windows - Space Cadet`, a game bundled with Windows.
 
+## Source layout
+
+| Path | Contents |
+| --- | --- |
+| `src/app` | Entry point, main loop, window/fullscreen handling, options |
+| `src/core` | Game state, rules, table, physics and timing |
+| `src/core/components` | Table components (`TBall`, `TFlipper`, `TLight`, ...) |
+| `src/render` | Software renderer, bitmaps, z-buffer and projection |
+| `src/audio` | MIDI and sound playback |
+| `src/data` | DAT parsing, resource groups and loaders |
+| `src/ui` | ImGui UI, score/high-score, text boxes and translations |
+| `src/platform` | Platform-specific resources (Windows `.rc`/icon) |
+| `third_party/imgui` | Vendored ImGui sources |
+| `assets` | Icons and source assets embedded into the build |
+| `debug` | Visual Studio natvis file |
+
 ## How to play
 
 Place compiled executable into a folder containing original game resources (not included).\
 Supports data files from Windows and Full Tilt versions of the game.
+
+For local development, put the original game data in `Resources/` at the repository root; the build copies it next to the executable automatically.
 
 ## Known source ports
 
@@ -55,18 +73,26 @@ Platforms covered by this project: desktop Windows, Linux and macOS.
 
 ## Compiling
 
-Project uses `C++11` and depends on `SDL2` libs.
+Project uses `C++20` and depends on `SDL2` / `SDL2_mixer`. The supported baseline is Windows 11 with Visual Studio 2022+, macOS 12+ with Xcode 16+, and Linux with GCC 13+ or Clang 17+. CMake 3.25 or newer is required.
+
+The repository includes a `vcpkg.json` manifest and `CMakePresets.json`. With `VCPKG_ROOT` pointing at a vcpkg checkout:
+
+```sh
+cmake --preset windows-x64        # or windows-x64-vs2022 on VS 2022
+cmake --build --preset windows-x64-release
+```
+
+On Linux and macOS the `linux-x64` / `macos-universal` presets use system SDL2 packages.
 
 ### On Windows
 
-Download and unpack devel packages for `SDL2` and `SDL2_mixer`.\
-Set paths to them in `CMakeLists.txt`, see suggested placement in `/Libs`.\
-Compile with Visual Studio; tested with 2019.
+Download and unpack devel packages for `SDL2` and `SDL2_mixer` into `/Libs`, or use the vcpkg presets above.\
+Compile with Visual Studio 2022 or newer; tested with Visual Studio 2026 on Windows 11.
 
 ### On Linux
 
 Install devel packages for `SDL2` and `SDL2_mixer`.\
-Compile with CMake; tested with GCC 10, Clang 11.\
+Compile with CMake 3.25+; tested with GCC 13+ and Clang 17+.\
 To cross-compile for Windows, install a 64-bit version of mingw and its `SDL2` and `SDL2_mixer` distributions, then use the `mingwcc.cmake` toolchain.
 
 [![Packaging status](https://repology.org/badge/tiny-repos/spacecadetpinball.svg)](https://repology.org/project/spacecadetpinball/versions) 
@@ -77,7 +103,7 @@ This project is available as Flatpak on [Flathub](https://flathub.org/apps/detai
 
 ### On macOS
 
-Install XCode (or at least Xcode Command Line Tools with `xcode-select --install`) and CMake.
+Install Xcode 16 or newer (or at least the Xcode 16 Command Line Tools with `xcode-select --install`) and CMake.
 
 **HomeBrew**
 
@@ -95,15 +121,15 @@ Be aware that the flag `--no-quarantime` will disable macOS's Gatekeeper during 
 * **Homebrew**: Install the `SDL2`, `SDL2_mixer` homebrew packages.
 * **MacPorts**: Install the `libSDL2`, `libSDL2_mixer` macports packages.
 
-Compile with CMake. Ensure that `CMAKE_OSX_ARCHITECTURES` variable is set for either `x86_64` Apple Intel or `arm64` for Apple Silicon.
+Compile with CMake 3.25+. `CMakeLists.txt` defaults to a universal `arm64;x86_64` build with a macOS 12.0 deployment target; override `CMAKE_OSX_ARCHITECTURES` if you need a single architecture.
 
-Tested with: macOS Big Sur (Intel) with Xcode 13 & macOS Montery Beta (Apple Silicon) with Xcode 13.
+Build with Xcode 16+ (AppleClang 16); the deployment target is macOS 12.0.
 
 **Automated compilation:**
 
 Run the `build-mac-app.sh` script from the root of the repository. The app will be available in a DMG file named `SpaceCadetPinball-<version>-mac.dmg`.
 
-Tested with: macOS Ventura (Apple Silicon) with Xcode Command Line Tools 14 & macOS Big Sur on GitHub Runner (Intel) with XCode 13.
+Tested with: macOS 14/15 and Xcode 16.
 
 ## Plans
 

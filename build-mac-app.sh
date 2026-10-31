@@ -36,8 +36,8 @@ hdiutil detach "$mount_point"
 
 cd ..
 
-cmake .
-cmake --build .
+cmake -S . -B build/macos -DCMAKE_BUILD_TYPE=Release
+cmake --build build/macos --parallel
 
 sw_version='2.1.1'
 

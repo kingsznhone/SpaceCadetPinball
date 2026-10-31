@@ -300,3 +300,9 @@ _deps
 build.ninja
 # Build directory
 /build
+
+# Local game data (not distributed with the project)
+/Resources/
+
+# CMake user presets
+CMakeUserPresets.json

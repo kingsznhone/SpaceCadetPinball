@@ -2,7 +2,8 @@
 
 Install devel packages for `SDL2` and `SDL2_mixer`.\
 
-Compile with CMake; tested with GCC 10, Clang 11.\
+Compile with CMake 3.25+; tested with GCC 13+ and Clang 17+.\
+GCC 13+ is required; on Ubuntu 22.04 install `gcc-13`/`g++-13` or use Ubuntu 24.04+.\
 To cross-compile for Windows, install a 64-bit version of mingw and its `SDL2` and `SDL2_mixer` distributions, then use the `mingwcc.cmake` toolchain.
 
 ```bash
@@ -13,8 +14,12 @@ sudo apt install cmake build-essential ninja-build libsdl2-dev libsdl2-mixer-dev
 sudo dnf install cmake ninja-build SDL2 SDL2-devel SDL2_mixer SDL2_mixer-devel fluidsynth fluidsynth-libs mscore-fonts g++
 
 # Build
-cmake -GNinja .
-ninja
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+
+# Or use the preset
+cmake --preset linux-x64
+cmake --build --preset linux-x64-release
 ```
 
 **If you can't hear the background music**: You need to export the following variable before launching the game like this:

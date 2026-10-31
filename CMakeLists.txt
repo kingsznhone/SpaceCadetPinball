@@ -1,13 +1,21 @@
-cmake_minimum_required(VERSION 3.0...3.5)
-project(SpaceCadetPinball)
+cmake_minimum_required(VERSION 3.25)
+project(SpaceCadetPinball VERSION 2.1.1 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Source files contain UTF-8 text (translations), do not rely on the system codepage
-if(MSVC)
-    add_compile_options(/utf-8)
+# Enforce the modern platform baseline early for clearer errors
+if(MSVC AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.30)
+    message(FATAL_ERROR "Visual Studio 2022 (MSVC 19.30) or newer is required.")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13)
+    message(FATAL_ERROR "GCC 13 or newer is required.")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 17)
+    message(FATAL_ERROR "Clang 17 or newer is required.")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 16)
+    message(FATAL_ERROR "AppleClang 16 (Xcode 16) or newer is required.")
 endif()
-
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
 
@@ -28,8 +36,12 @@ if(APPLE)
     set(MACOSX_RPATH)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH true)
     set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11")
-    set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+    if(NOT CMAKE_OSX_DEPLOYMENT_TARGET)
+        set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
+    endif()
+    if(NOT CMAKE_OSX_ARCHITECTURES)
+        set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64")
+    endif()
     list(APPEND SDL2_PATH "${CMAKE_CURRENT_LIST_DIR}/Libs")
     list(APPEND SDL2_MIXER_PATH "${CMAKE_CURRENT_LIST_DIR}/Libs")
 endif()
@@ -38,190 +50,273 @@ endif()
 set(SDL2_BUILDING_LIBRARY ON)
 
 find_package(SDL2 REQUIRED)
-FIND_PACKAGE(SDL2_mixer REQUIRED)
-
-include_directories(${SDL2_INCLUDE_DIR} ${SDL2_MIXER_INCLUDE_DIR})
-get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-foreach(dir ${dirs})
-  message(STATUS "Include dir='${dir}'")
-endforeach()
-
-
+find_package(SDL2_mixer REQUIRED)
 
 set(SOURCE_FILES
-        SpaceCadetPinball/control.cpp
-        SpaceCadetPinball/control.h
-        SpaceCadetPinball/EmbeddedData.cpp
-        SpaceCadetPinball/EmbeddedData.h
-        SpaceCadetPinball/font_selection.cpp
-        SpaceCadetPinball/font_selection.h
-        SpaceCadetPinball/fullscrn.cpp
-        SpaceCadetPinball/fullscrn.h
-        SpaceCadetPinball/gdrv.cpp
-        SpaceCadetPinball/gdrv.h
-        SpaceCadetPinball/GroupData.cpp
-        SpaceCadetPinball/GroupData.h
-        SpaceCadetPinball/high_score.cpp
-        SpaceCadetPinball/high_score.h
-        SpaceCadetPinball/loader.cpp
-        SpaceCadetPinball/loader.h
-        SpaceCadetPinball/maths.cpp
-        SpaceCadetPinball/maths.h
-        SpaceCadetPinball/midi.cpp
-        SpaceCadetPinball/midi.h
-        SpaceCadetPinball/nudge.cpp
-        SpaceCadetPinball/nudge.h
-        SpaceCadetPinball/options.cpp
-        SpaceCadetPinball/options.h
-        SpaceCadetPinball/partman.cpp
-        SpaceCadetPinball/partman.h
-        SpaceCadetPinball/pb.cpp
-        SpaceCadetPinball/pb.h
-        SpaceCadetPinball/pch.h
-        SpaceCadetPinball/proj.cpp
-        SpaceCadetPinball/proj.h
-        SpaceCadetPinball/render.cpp
-        SpaceCadetPinball/render.h
-        SpaceCadetPinball/score.cpp
-        SpaceCadetPinball/score.h
-        SpaceCadetPinball/Sound.cpp
-        SpaceCadetPinball/Sound.h
-        SpaceCadetPinball/SpaceCadetPinball.cpp
-        SpaceCadetPinball/TBall.cpp
-        SpaceCadetPinball/TBall.h
-        SpaceCadetPinball/TBlocker.cpp
-        SpaceCadetPinball/TBlocker.h
-        SpaceCadetPinball/TBumper.cpp
-        SpaceCadetPinball/TBumper.h
-        SpaceCadetPinball/TCircle.cpp
-        SpaceCadetPinball/TCircle.h
-        SpaceCadetPinball/TCollisionComponent.cpp
-        SpaceCadetPinball/TCollisionComponent.h
-        SpaceCadetPinball/TComponentGroup.cpp
-        SpaceCadetPinball/TComponentGroup.h
-        SpaceCadetPinball/TDemo.cpp
-        SpaceCadetPinball/TDemo.h
-        SpaceCadetPinball/TDrain.cpp
-        SpaceCadetPinball/TDrain.h
-        SpaceCadetPinball/TEdgeBox.h
-        SpaceCadetPinball/TEdgeManager.cpp
-        SpaceCadetPinball/TEdgeManager.h
-        SpaceCadetPinball/TEdgeSegment.cpp
-        SpaceCadetPinball/TEdgeSegment.h
-        SpaceCadetPinball/TFlagSpinner.cpp
-        SpaceCadetPinball/TFlagSpinner.h
-        SpaceCadetPinball/TFlipper.cpp
-        SpaceCadetPinball/TFlipper.h
-        SpaceCadetPinball/TFlipperEdge.cpp
-        SpaceCadetPinball/TFlipperEdge.h
-        SpaceCadetPinball/TGate.cpp
-        SpaceCadetPinball/TGate.h
-        SpaceCadetPinball/THole.cpp
-        SpaceCadetPinball/THole.h
-        SpaceCadetPinball/timer.cpp
-        SpaceCadetPinball/timer.h
-        SpaceCadetPinball/TKickback.cpp
-        SpaceCadetPinball/TKickback.h
-        SpaceCadetPinball/TKickout.cpp
-        SpaceCadetPinball/TKickout.h
-        SpaceCadetPinball/TLight.cpp
-        SpaceCadetPinball/TLight.h
-        SpaceCadetPinball/TLightBargraph.cpp
-        SpaceCadetPinball/TLightBargraph.h
-        SpaceCadetPinball/TLightGroup.cpp
-        SpaceCadetPinball/TLightGroup.h
-        SpaceCadetPinball/TLightRollover.cpp
-        SpaceCadetPinball/TLightRollover.h
-        SpaceCadetPinball/TLine.cpp
-        SpaceCadetPinball/TLine.h
-        SpaceCadetPinball/TOneway.cpp
-        SpaceCadetPinball/TOneway.h
-        SpaceCadetPinball/TPinballComponent.cpp
-        SpaceCadetPinball/TPinballComponent.h
-        SpaceCadetPinball/TPinballTable.cpp
-        SpaceCadetPinball/TPinballTable.h
-        SpaceCadetPinball/TPlunger.cpp
-        SpaceCadetPinball/TPlunger.h
-        SpaceCadetPinball/TPopupTarget.cpp
-        SpaceCadetPinball/TPopupTarget.h
-        SpaceCadetPinball/TRamp.cpp
-        SpaceCadetPinball/TRamp.h
-        SpaceCadetPinball/translations.cpp
-        SpaceCadetPinball/translations.h
-        SpaceCadetPinball/TRollover.cpp
-        SpaceCadetPinball/TRollover.h
-        SpaceCadetPinball/TSink.cpp
-        SpaceCadetPinball/TSink.h
-        SpaceCadetPinball/TSoloTarget.cpp
-        SpaceCadetPinball/TSoloTarget.h
-        SpaceCadetPinball/TSound.cpp
-        SpaceCadetPinball/TSound.h
-        SpaceCadetPinball/TTableLayer.cpp
-        SpaceCadetPinball/TTableLayer.h
-        SpaceCadetPinball/TTextBox.cpp
-        SpaceCadetPinball/TTextBox.h
-        SpaceCadetPinball/TTextBoxMessage.cpp
-        SpaceCadetPinball/TTextBoxMessage.h
-        SpaceCadetPinball/TTimer.cpp
-        SpaceCadetPinball/TTimer.h
-        SpaceCadetPinball/TTripwire.cpp
-        SpaceCadetPinball/TTripwire.h
-        SpaceCadetPinball/TWall.cpp
-        SpaceCadetPinball/TWall.h
-        SpaceCadetPinball/winmain.cpp
-        SpaceCadetPinball/winmain.h
-        SpaceCadetPinball/zdrv.cpp
-        SpaceCadetPinball/zdrv.h
-        SpaceCadetPinball/imconfig.h
-        SpaceCadetPinball/imgui_internal.h
-        SpaceCadetPinball/imgui.cpp
-        SpaceCadetPinball/imgui.h
-        SpaceCadetPinball/imgui_sdl.cpp
-        SpaceCadetPinball/imgui_sdl.h
-        SpaceCadetPinball/imgui_draw.cpp
-        SpaceCadetPinball/imgui_widgets.cpp
-        SpaceCadetPinball/imgui_tables.cpp
-        SpaceCadetPinball/imgui_demo.cpp
-        SpaceCadetPinball/imgui_impl_sdl.cpp
-        SpaceCadetPinball/imgui_impl_sdl.h
-        SpaceCadetPinball/imgui_impl_sdlrenderer.h
-        SpaceCadetPinball/imgui_impl_sdlrenderer.cpp
-        SpaceCadetPinball/imstb_textedit.h
-        SpaceCadetPinball/imstb_rectpack.h
-        SpaceCadetPinball/imstb_truetype.h
-        SpaceCadetPinball/DebugOverlay.cpp
-        SpaceCadetPinball/DebugOverlay.h
+        src/pch.h
+
+        # Application shell
+        src/app/SpaceCadetPinball.cpp
+        src/app/winmain.cpp
+        src/app/winmain_ui.cpp
+        src/app/winmain.h
+        src/app/options.cpp
+        src/app/options.h
+        src/app/fullscrn.cpp
+        src/app/fullscrn.h
+
+        # Core game
+        src/core/pb.cpp
+        src/core/pb.h
+        src/core/control.cpp
+        src/core/control.h
+        src/core/maths.cpp
+        src/core/maths.h
+        src/core/nudge.cpp
+        src/core/nudge.h
+        src/core/timer.cpp
+        src/core/timer.h
+        src/core/TPinballTable.cpp
+        src/core/TPinballTable.h
+        src/core/TPinballComponent.cpp
+        src/core/TPinballComponent.h
+        src/core/TCollisionComponent.cpp
+        src/core/TCollisionComponent.h
+        src/core/TEdgeManager.cpp
+        src/core/TEdgeManager.h
+        src/core/TEdgeSegment.cpp
+        src/core/TEdgeSegment.h
+        src/core/TEdgeBox.h
+        src/core/TTableLayer.cpp
+        src/core/TTableLayer.h
+
+        # Table components
+        src/core/components/TBall.cpp
+        src/core/components/TBall.h
+        src/core/components/TBlocker.cpp
+        src/core/components/TBlocker.h
+        src/core/components/TBumper.cpp
+        src/core/components/TBumper.h
+        src/core/components/TCircle.cpp
+        src/core/components/TCircle.h
+        src/core/components/TComponentGroup.cpp
+        src/core/components/TComponentGroup.h
+        src/core/components/TDemo.cpp
+        src/core/components/TDemo.h
+        src/core/components/TDrain.cpp
+        src/core/components/TDrain.h
+        src/core/components/TFlagSpinner.cpp
+        src/core/components/TFlagSpinner.h
+        src/core/components/TFlipper.cpp
+        src/core/components/TFlipper.h
+        src/core/components/TFlipperEdge.cpp
+        src/core/components/TFlipperEdge.h
+        src/core/components/TGate.cpp
+        src/core/components/TGate.h
+        src/core/components/THole.cpp
+        src/core/components/THole.h
+        src/core/components/TKickback.cpp
+        src/core/components/TKickback.h
+        src/core/components/TKickout.cpp
+        src/core/components/TKickout.h
+        src/core/components/TLight.cpp
+        src/core/components/TLight.h
+        src/core/components/TLightBargraph.cpp
+        src/core/components/TLightBargraph.h
+        src/core/components/TLightGroup.cpp
+        src/core/components/TLightGroup.h
+        src/core/components/TLightRollover.cpp
+        src/core/components/TLightRollover.h
+        src/core/components/TLine.cpp
+        src/core/components/TLine.h
+        src/core/components/TOneway.cpp
+        src/core/components/TOneway.h
+        src/core/components/TPlunger.cpp
+        src/core/components/TPlunger.h
+        src/core/components/TPopupTarget.cpp
+        src/core/components/TPopupTarget.h
+        src/core/components/TRamp.cpp
+        src/core/components/TRamp.h
+        src/core/components/TRollover.cpp
+        src/core/components/TRollover.h
+        src/core/components/TSink.cpp
+        src/core/components/TSink.h
+        src/core/components/TSoloTarget.cpp
+        src/core/components/TSoloTarget.h
+        src/core/components/TTimer.cpp
+        src/core/components/TTimer.h
+        src/core/components/TTripwire.cpp
+        src/core/components/TTripwire.h
+        src/core/components/TWall.cpp
+        src/core/components/TWall.h
+
+        # Rendering
+        src/render/render.cpp
+        src/render/render.h
+        src/render/gdrv.cpp
+        src/render/gdrv.h
+        src/render/zdrv.cpp
+        src/render/zdrv.h
+        src/render/proj.cpp
+        src/render/proj.h
+
+        # Audio
+        src/audio/Sound.cpp
+        src/audio/Sound.h
+        src/audio/midi.cpp
+        src/audio/midi.h
+        src/audio/TSound.cpp
+        src/audio/TSound.h
+
+        # Game data
+        src/data/partman.cpp
+        src/data/partman.h
+        src/data/GroupData.cpp
+        src/data/GroupData.h
+        src/data/loader.cpp
+        src/data/loader.h
+        src/data/EmbeddedData.cpp
+        src/data/EmbeddedData.h
+
+        # UI and localization
+        src/ui/DebugOverlay.cpp
+        src/ui/DebugOverlay.h
+        src/ui/font_selection.cpp
+        src/ui/font_selection.h
+        src/ui/high_score.cpp
+        src/ui/high_score.h
+        src/ui/score.cpp
+        src/ui/score.h
+        src/ui/translations.cpp
+        src/ui/translations_data.cpp
+        src/ui/translations.h
+        src/ui/TTextBox.cpp
+        src/ui/TTextBox.h
+        src/ui/TTextBoxMessage.cpp
+        src/ui/TTextBoxMessage.h
+
+        # Third-party ImGui
+        third_party/imgui/imconfig.h
+        third_party/imgui/imgui.cpp
+        third_party/imgui/imgui.h
+        third_party/imgui/imgui_demo.cpp
+        third_party/imgui/imgui_draw.cpp
+        third_party/imgui/imgui_internal.h
+        third_party/imgui/imgui_sdl.cpp
+        third_party/imgui/imgui_sdl.h
+        third_party/imgui/imgui_tables.cpp
+        third_party/imgui/imgui_widgets.cpp
+        third_party/imgui/imgui_impl_sdl.cpp
+        third_party/imgui/imgui_impl_sdl.h
+        third_party/imgui/imgui_impl_sdlrenderer.cpp
+        third_party/imgui/imgui_impl_sdlrenderer.h
+        third_party/imgui/imstb_rectpack.h
+        third_party/imgui/imstb_textedit.h
+        third_party/imgui/imstb_truetype.h
         )
 
 # On Windows, include resource file with the icon
 if(WIN32)
-    set_source_files_properties(SpaceCadetPinball/SpaceCadetPinball.rc LANGUAGE RC)
-    list(APPEND SOURCE_FILES SpaceCadetPinball/SpaceCadetPinball.rc)
+    set_source_files_properties(src/platform/windows/SpaceCadetPinball.rc LANGUAGE RC)
+    list(APPEND SOURCE_FILES src/platform/windows/SpaceCadetPinball.rc)
 endif(WIN32)
 
 add_executable(SpaceCadetPinball ${SOURCE_FILES})
 
-# Skip pch on foreign code
-set_source_files_properties(
-        SpaceCadetPinball/imgui.cpp
-        SpaceCadetPinball/imgui_sdl.cpp
-        SpaceCadetPinball/imgui_draw.cpp
-        SpaceCadetPinball/imgui_widgets.cpp
-        SpaceCadetPinball/imgui_tables.cpp
-        SpaceCadetPinball/imgui_demo.cpp
-        SpaceCadetPinball/imgui_impl_sdl.cpp
-        SpaceCadetPinball/imgui_impl_sdlrenderer.cpp
-        PROPERTIES SKIP_PRECOMPILE_HEADERS 1
-)
+if(MSVC)
+    target_sources(SpaceCadetPinball PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/debug/NatvisFile.natvis)
+    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/debug/NatvisFile.natvis PROPERTIES HEADER_FILE_ONLY TRUE)
+endif()
 
-if(${CMAKE_VERSION} VERSION_GREATER "3.16.0" OR ${CMAKE_VERSION} VERSION_EQUAL "3.16.0")
-    target_precompile_headers(SpaceCadetPinball
-            PUBLIC
-            SpaceCadetPinball/pch.h
+target_include_directories(SpaceCadetPinball PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/platform/windows
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui
+        ${SDL2_INCLUDE_DIR}
+        ${SDL2_MIXER_INCLUDE_DIR}
+        )
+
+# Modern compiler baseline: VS 2022+, GCC 13+, Clang 17+, AppleClang 16+
+if(MSVC)
+    target_compile_options(SpaceCadetPinball PRIVATE
+            /W4
+            /permissive-
+            /Zc:__cplusplus
+            /Zc:preprocessor
+            /utf-8
+            )
+else()
+    target_compile_options(SpaceCadetPinball PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+            -Wshadow
             )
 endif()
 
-target_link_libraries(SpaceCadetPinball ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY})
+option(SCP_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
+if(SCP_WARNINGS_AS_ERRORS)
+    if(MSVC)
+        target_compile_options(SpaceCadetPinball PRIVATE /WX)
+    else()
+        target_compile_options(SpaceCadetPinball PRIVATE -Werror)
+    endif()
+endif()
+
+option(SCP_SANITIZE "Enable Address/UB sanitizers" OFF)
+if(SCP_SANITIZE)
+    if(MSVC)
+        # /fsanitize=address cannot be combined with the /RTC1 Debug default
+        string(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+        target_compile_options(SpaceCadetPinball PRIVATE /fsanitize=address)
+    else()
+        target_compile_options(SpaceCadetPinball PRIVATE
+                -fsanitize=address,undefined
+                -fno-omit-frame-pointer
+                )
+        target_link_options(SpaceCadetPinball PRIVATE -fsanitize=address,undefined)
+    endif()
+endif()
+
+option(SCP_LTO "Enable link-time optimization" OFF)
+if(SCP_LTO AND NOT SCP_SANITIZE)
+    include(CheckIPOSupported)
+    check_ipo_supported(RESULT SCP_IPO_SUPPORTED OUTPUT SCP_IPO_OUTPUT LANGUAGES CXX)
+    if(SCP_IPO_SUPPORTED)
+        # LTO is only meaningful for release builds; keep Debug editable/debuggable.
+        set_property(TARGET SpaceCadetPinball PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+    else()
+        message(WARNING "LTO is not supported: ${SCP_IPO_OUTPUT}")
+    endif()
+endif()
+
+# Skip pch on foreign code
+set_source_files_properties(
+        third_party/imgui/imgui.cpp
+        third_party/imgui/imgui_sdl.cpp
+        third_party/imgui/imgui_draw.cpp
+        third_party/imgui/imgui_widgets.cpp
+        third_party/imgui/imgui_tables.cpp
+        third_party/imgui/imgui_demo.cpp
+        third_party/imgui/imgui_impl_sdl.cpp
+        third_party/imgui/imgui_impl_sdlrenderer.cpp
+        PROPERTIES SKIP_PRECOMPILE_HEADERS 1
+)
+
+target_precompile_headers(SpaceCadetPinball PRIVATE src/pch.h)
+
+target_link_libraries(SpaceCadetPinball PRIVATE ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY})
+
+# Copy local game data from Resources/ next to the executable.
+# The original game assets are not part of this repository.
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Resources")
+    add_custom_command(TARGET SpaceCadetPinball POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    "${CMAKE_CURRENT_SOURCE_DIR}/Resources"
+                    "$<TARGET_FILE_DIR:SpaceCadetPinball>"
+            COMMENT "Copying game resources to $<TARGET_FILE_DIR:SpaceCadetPinball>"
+            )
+endif()
 
 # On Windows, copy DLL to output
 if(WIN32)
@@ -253,7 +348,7 @@ if(UNIX AND NOT APPLE)
 	install(FILES "${CMAKE_SOURCE_DIR}/Platform/Linux/${PROJECT_NAME}.desktop" DESTINATION "share/applications")
 	install(FILES "${CMAKE_SOURCE_DIR}/Platform/Linux/${PROJECT_NAME}.metainfo.xml" DESTINATION "share/metainfo")
 	foreach(S 16 32 48 128 192)
-		install(FILES "${CMAKE_SOURCE_DIR}/${PROJECT_NAME}/Icon_${S}x${S}.png" DESTINATION
+		install(FILES "${CMAKE_SOURCE_DIR}/assets/icons/Icon_${S}x${S}.png" DESTINATION
 			"share/icons/hicolor/${S}x${S}/apps" RENAME "${PROJECT_NAME}.png")
 	endforeach(S)
 endif()

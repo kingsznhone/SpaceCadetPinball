@@ -1,20 +1,16 @@
-#Run this script from Developer Command Prompt for VS *
-$artefacts = ".\bin\Release\SpaceCadetPinball.exe", ".\bin\Release\SDL2.dll", ".\bin\Release\SDL2_mixer.dll"
+# Run from a Developer PowerShell for Visual Studio 2022/2026.
+# Modern baseline: Windows 11 x64 only. XP/x86 builds are no longer supported.
+param(
+    [string]$Preset = "windows-x64"
+)
 
-#X86 build
-Remove-Item -Path .\build\CMakeCache.txt -ErrorAction SilentlyContinue
-cmake -S . -B build -A Win32 -DCMAKE_WIN32_EXECUTABLE:BOOL=1
-cmake --build build --config Release
-Compress-Archive -Path $artefacts -DestinationPath ".\bin\SpaceCadetPinballx86Win.zip" -Force
+$ErrorActionPreference = "Stop"
 
-#X64 build
-Remove-Item -Path .\build\CMakeCache.txt
-cmake -S . -B build -A x64 -DCMAKE_WIN32_EXECUTABLE:BOOL=1
-cmake --build build --config Release
-Compress-Archive -Path $artefacts -DestinationPath ".\bin\SpaceCadetPinballx64Win.zip" -Force
+if (-not $env:VCPKG_ROOT) {
+    throw "VCPKG_ROOT is not set. Point it at your vcpkg checkout first."
+}
 
-#86 XP build, requires special XP MSVC toolset
-Remove-Item -Path .\build\CMakeCache.txt
-cmake -S . -B build -A Win32 -DCMAKE_WIN32_EXECUTABLE:BOOL=1 -T v141_xp
-cmake --build build --config Release
-Compress-Archive -Path $artefacts -DestinationPath ".\bin\SpaceCadetPinballx86WinXP.zip" -Force
+cmake --preset $Preset
+cmake --build --preset "$Preset-release"
+
+Compress-Archive -Path ".\bin\Release\*" -DestinationPath ".\bin\SpaceCadetPinball-x64-win.zip" -Force

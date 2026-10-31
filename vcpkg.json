@@ -1,0 +1,13 @@
+{
+  "name": "spacecadetpinball",
+  "version": "2.1.1",
+  "description": "Reverse engineering of 3D Pinball for Windows - Space Cadet",
+  "builtin-baseline": "9a5dfef5d1a0438a7d24856a85bd60f309d355e9",
+  "dependencies": [
+    "sdl2",
+    {
+      "name": "sdl2-mixer",
+      "default-features": false
+    }
+  ]
+}

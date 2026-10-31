@@ -3,6 +3,11 @@ project(SpaceCadetPinball)
 
 set(CMAKE_CXX_STANDARD 11)
 
+# Source files contain UTF-8 text (translations), do not rely on the system codepage
+if(MSVC)
+    add_compile_options(/utf-8)
+endif()
+
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/bin)
 
@@ -227,6 +232,13 @@ if(WIN32)
     if(MINGW)
         string(REGEX REPLACE "lib$" "bin" SDL2_DLL_PATH ${SDL2_DLL_PATH})
         string(REGEX REPLACE "lib$" "bin" SDL2_MIXER_DLL_PATH ${SDL2_MIXER_DLL_PATH})
+    endif()
+    # vcpkg keeps runtime DLLs in ../bin instead of next to the import library
+    if(NOT EXISTS "${SDL2_DLL_PATH}/SDL2.dll" AND EXISTS "${SDL2_DLL_PATH}/../bin/SDL2.dll")
+        get_filename_component(SDL2_DLL_PATH "${SDL2_DLL_PATH}/../bin" ABSOLUTE)
+    endif()
+    if(NOT EXISTS "${SDL2_MIXER_DLL_PATH}/SDL2_mixer.dll" AND EXISTS "${SDL2_MIXER_DLL_PATH}/../bin/SDL2_mixer.dll")
+        get_filename_component(SDL2_MIXER_DLL_PATH "${SDL2_MIXER_DLL_PATH}/../bin" ABSOLUTE)
     endif()
     message(STATUS "copy paths='${SDL2_DLL_PATH}' '${SDL2_MIXER_DLL_PATH}'") 
     add_custom_command(TARGET SpaceCadetPinball POST_BUILD

@@ -55,9 +55,7 @@ TFlipper::~TFlipper()
 	if (PinballTable)
 	{
 		auto& flippers = PinballTable->FlipperList;
-		auto position = std::find(flippers.begin(), flippers.end(), this);
-		if (position != flippers.end())
-			flippers.erase(position);
+		std::erase(flippers, this);
 	}
 }
 

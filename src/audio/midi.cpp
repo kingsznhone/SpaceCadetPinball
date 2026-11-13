@@ -141,7 +141,7 @@ Mix_Music* midi::load_track_sub(std::string fileName, bool isMidi)
 	for (int i = 0; i < 2; i++)
 	{
 		if (i == 1)
-			std::transform(fileName.begin(), fileName.end(), fileName.begin(),
+			std::ranges::transform(fileName, fileName.begin(),
 			               [](unsigned char c) { return std::tolower(c); });
 		if (isMidi)
 		{
@@ -320,10 +320,7 @@ std::vector<uint8_t>* midi::MdsToMidi(std::string file)
 		}
 
 		// MIDS events can be out of order in the file
-		std::sort(midiEvents.begin(), midiEvents.end(), [](const midi_event& lhs, const midi_event& rhs)
-		{
-			return lhs.iTicks < rhs.iTicks;
-		});
+		std::ranges::sort(midiEvents, {}, &midi_event::iTicks);
 
 		// MThd chunk
 		std::vector<uint8_t>& midiBytes = *new std::vector<uint8_t>();

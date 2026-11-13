@@ -60,12 +60,12 @@ int pb::init()
 	if (!record_table)
 		return 1;
 
-	auto plt = (ColorRgba*)record_table->field_labeled("background", FieldTypes::Palette);
+	auto plt = reinterpret_cast<ColorRgba*>(record_table->field_labeled("background", FieldTypes::Palette));
 	gdrv::display_palette(plt);
 
 	auto backgroundBmp = record_table->GetBitmap(record_table->record_labeled("background"));
 	auto cameraInfoId = record_table->record_labeled("camera_info") + fullscrn::GetResolution();
-	auto cameraInfo = (float*)record_table->field(cameraInfoId, FieldTypes::FloatArray);
+	auto cameraInfo = reinterpret_cast<float*>(record_table->field(cameraInfoId, FieldTypes::FloatArray));
 
 	/*Full tilt: table size depends on resolution*/
 	auto resInfo = &fullscrn::resolution_array[fullscrn::GetResolution()];
@@ -161,7 +161,7 @@ void pb::SelectDatFile(const std::vector<const char*>& dataSearchPaths)
 			for (int i = 0; i < 2; i++)
 			{
 				if (i == 1)
-					std::transform(fileName.begin(), fileName.end(), fileName.begin(),
+					std::ranges::transform(fileName, fileName.begin(),
 					               [](unsigned char c) { return std::tolower(c); });
 
 				auto datFilePath = make_path_name(fileName);

@@ -214,9 +214,7 @@ void render::AddSprite(render_sprite& sprite)
 void render::RemoveSprite(render_sprite& sprite)
 {
 	auto& list = sprite.VisualType == VisualTypes::Ball ? ball_list : sprite_list;
-	auto it = std::find(list.begin(), list.end(), &sprite);
-	if (it != list.end())
-		list.erase(it);
+	std::erase(list, &sprite);
 }
 
 void render::set_background_zmap(zmap_header_type* zMap, int offsetX, int offsetY)
@@ -260,10 +258,7 @@ void render::repaint(const render_sprite& sprite)
 void render::paint_balls()
 {
 	// Sort ball sprites by ascending depth
-	std::sort(ball_list.begin(), ball_list.end(), [](const render_sprite* lhs, const render_sprite* rhs)
-	{
-		return lhs->Depth < rhs->Depth;
-	});
+	std::ranges::sort(ball_list, {}, &render_sprite::Depth);
 
 	// For balls that clip vScreen: save original vScreen contents and paint ball bitmap.
 	for (auto index = 0u; index < ball_list.size(); ++index)

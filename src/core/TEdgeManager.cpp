@@ -51,19 +51,21 @@ int TEdgeManager::increment_box_y(int y)
 
 void TEdgeManager::add_edge_to_box(int x, int y, TEdgeSegment* edge)
 {
-	assertm((unsigned)x < (unsigned)MaxBoxX && (unsigned)y < (unsigned)MaxBoxY, "Box coordinates out of range");
+	assertm(static_cast<unsigned>(x) < static_cast<unsigned>(MaxBoxX) &&
+	        static_cast<unsigned>(y) < static_cast<unsigned>(MaxBoxY), "Box coordinates out of range");
 
 	auto& list = BoxArray[x + y * MaxBoxX].EdgeList;
-	assertm(std::find(list.begin(), list.end(), edge) == list.end(), "Duplicate inserted into box");
+	assertm(std::ranges::find(list, edge) == list.end(), "Duplicate inserted into box");
 	list.push_back(edge);
 }
 
 void TEdgeManager::add_field_to_box(int x, int y, field_effect_type* field)
 {
-	assertm((unsigned)x < (unsigned)MaxBoxX && (unsigned)y < (unsigned)MaxBoxY, "Box coordinates out of range");
+	assertm(static_cast<unsigned>(x) < static_cast<unsigned>(MaxBoxX) &&
+	        static_cast<unsigned>(y) < static_cast<unsigned>(MaxBoxY), "Box coordinates out of range");
 
 	auto& list = BoxArray[x + y * MaxBoxX].FieldList;
-	assertm(std::find(list.begin(), list.end(), field) == list.end(), "Duplicate inserted into box");
+	assertm(std::ranges::find(list, field) == list.end(), "Duplicate inserted into box");
 	list.push_back(field);
 }
 

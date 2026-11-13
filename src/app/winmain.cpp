@@ -136,9 +136,10 @@ int winmain::WinMain(LPCSTR lpCmdLine)
 	{
 		// Load SDL Game Controller definitions from DB
 		unsigned decompressedSize{};
+		const auto controllerDbData = EmbeddedData::SdlGameControllerDb();
 		const auto controllerDb = ImFontAtlas::DecompressCompressedStbData(
-			EmbeddedData::SDL_GameControllerDB_compressed_data,
-			EmbeddedData::SDL_GameControllerDB_compressed_size,
+				controllerDbData.data(),
+				static_cast<unsigned int>(controllerDbData.size() * sizeof(unsigned int)),
 			decompressedSize);
 		auto rw = SDL_RWFromMem(controllerDb, decompressedSize);
 		const auto added = SDL_GameControllerAddMappingsFromRW(rw, 1);

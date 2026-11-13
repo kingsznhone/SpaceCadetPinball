@@ -486,9 +486,9 @@ void* options::MyUserData_ReadOpen(ImGuiContext* ctx, ImGuiSettingsHandler* hand
 void options::MyUserData_WriteAll(ImGuiContext* ctx, ImGuiSettingsHandler* handler, ImGuiTextBuffer* buf)
 {
 	buf->appendf("[%s][%s]\n", handler->TypeName, "Settings");
-	for (const auto& setting : settings)
+	for (const auto& [key, value] : settings)
 	{
-		buf->appendf("%s=%s\n", setting.first.c_str(), setting.second.c_str());
+		buf->appendf("%s=%s\n", key.c_str(), value.c_str());
 	}
 	buf->append("\n");
 }
@@ -619,9 +619,7 @@ OptionBase::OptionBase(LPCSTR name): Name(name)
 OptionBase::~OptionBase()
 {
 	auto& vec = options::AllOptions;
-	auto position = std::find(vec.begin(), vec.end(), this);
-	if (position != vec.end())
-		vec.erase(position);
+	std::erase(vec, this);
 }
 
 std::string ControlOption::GetShortcutDescription() const

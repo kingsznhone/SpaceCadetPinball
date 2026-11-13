@@ -1,8 +1,11 @@
 #pragma once
+#include <bit>
 namespace scp {
 
 constexpr uint32_t SwapByteOrderInt(uint32_t val)
 {
+	if constexpr (std::endian::native == std::endian::big)
+		return val;
 	return (val >> 24) |
 		((val << 8) & 0x00FF0000) |
 		((val >> 8) & 0x0000FF00) |
@@ -11,6 +14,8 @@ constexpr uint32_t SwapByteOrderInt(uint32_t val)
 
 constexpr uint16_t SwapByteOrderShort(uint16_t val)
 {
+	if constexpr (std::endian::native == std::endian::big)
+		return val;
 	return static_cast<uint16_t>((val >> 8) | (val << 8));
 }
 

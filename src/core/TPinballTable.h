@@ -103,6 +103,6 @@ public:
 	int TiltLockFlag;
 
 private:
-	static int score_multipliers[5];
+	static constexpr std::array<int, 5> score_multipliers{1, 2, 3, 5, 10};
 };
 } // namespace scp

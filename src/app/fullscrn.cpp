@@ -157,6 +157,6 @@ SDL_Rect fullscrn::GetScreenRectFromPinballRect(SDL_Rect rect)
 
 float fullscrn::GetScreenToPinballRatio()
 {
-	return (float) render::DestinationRect.w / render::vscreen->Width;
+	return static_cast<float>(render::DestinationRect.w) / render::vscreen->Width;
 }
 } // namespace scp

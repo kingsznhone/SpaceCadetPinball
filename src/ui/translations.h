@@ -261,12 +261,12 @@ struct TextArray
 {
 	TextArray(const std::initializer_list<std::pair<Msg, std::initializer_list<std::pair<Lang, LPCSTR>>>>& iList)
 	{
-		for (const auto& msgPair : iList)
+		for (const auto& [msgId, languageTexts] : iList)
 		{
-			for (const auto& languagePair : msgPair.second)
+			for (const auto& [langId, text] : languageTexts)
 			{
-				assertm(!contains(msgPair.first, languagePair.first), "Key redefinition");
-				Set(msgPair.first, languagePair.first, languagePair.second);
+				assertm(!contains(msgId, langId), "Key redefinition");
+				Set(msgId, langId, text);
 			}
 		}
 

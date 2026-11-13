@@ -91,9 +91,7 @@ TPinballComponent::~TPinballComponent()
 	{
 		// ComponentList contains one reference to each component.
 		auto& components = PinballTable->ComponentList;
-		auto position = std::find(components.begin(), components.end(), this);
-		if (position != components.end())
-			components.erase(position);
+		std::erase(components, this);
 	}
 
 	delete ListBitmap;

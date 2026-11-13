@@ -82,9 +82,9 @@ void translations::GetGlyphRange(ImVector<ImWchar>* ranges)
 {
 	ImFontGlyphRangesBuilder builder;
 
-	for (int i = 0; i < (int)Msg::Max; i++)
+	for (int i = 0; i < static_cast<int>(Msg::Max); i++)
 	{
-		const char* translation = GetTranslation((Msg)i);
+		const char* translation = GetTranslation(static_cast<Msg>(i));
 		if (translation)
 		{
 			builder.AddText(translation);

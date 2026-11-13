@@ -157,7 +157,7 @@ int loader::get_sound_id(int groupIndex)
 				for (int i = 0; i < 2; i++)
 				{
 					if (i == 1)
-						std::transform(fileName.begin(), fileName.end(), fileName.begin(),
+						std::ranges::transform(fileName, fileName.begin(),
 						               [](unsigned char c) { return std::toupper(c); });
 
 					filePath = pb::make_path_name(fileName);

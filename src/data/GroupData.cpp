@@ -82,10 +82,7 @@ void GroupData::FinalizeGroup()
 		// Entries within a group are sorted by EntryType, in ascending order.
 		// Dat files follow this rule, zMaps inserted in the middle break it.
 		NeedsSort = false;
-		std::sort(Entries.begin(), Entries.end(), [](const EntryData* lhs, const EntryData* rhs)
-		{
-			return lhs->EntryType < rhs->EntryType;
-		});
+		std::ranges::sort(Entries, {}, &EntryData::EntryType);
 		Entries.shrink_to_fit();
 	}
 }
@@ -290,7 +287,7 @@ void DatFile::Finalize()
 
 		// Load 3DPB font into dat to simplify pipeline
 		auto rcData = reinterpret_cast<MsgFont*>(ImFontAtlas::DecompressCompressedBase85Data(
-			EmbeddedData::PB_MSGFT_bin_compressed_data_base85));
+				EmbeddedData::PbMsgFtBin().data()));
 		AddMsgFont(rcData, "pbmsg_ft");
 		IM_FREE(rcData);
 

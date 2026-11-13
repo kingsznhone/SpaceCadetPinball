@@ -26,6 +26,7 @@
 #include <array>
 #include <vector>
 #include <algorithm>
+#include <ranges>
 #include <cstring>
 #include <string>
 #include <thread>
@@ -72,8 +73,8 @@ inline void ImGui_Render_RenderDrawData(ImDrawData* draw_data) { ImGuiSDL::Rende
 #endif
 
 
-typedef char* LPSTR;
-typedef const char* LPCSTR;
+using LPSTR = char*;
+using LPCSTR = const char*;
 
 constexpr char PathSeparator =
 #ifdef _WIN32

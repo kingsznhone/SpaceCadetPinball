@@ -40,9 +40,6 @@
 #include "ui/translations.h"
 namespace scp {
 
-int TPinballTable::score_multipliers[5] = {1, 2, 3, 5, 10};
-
-
 TPinballTable::TPinballTable(): TPinballComponent(nullptr, -1, false)
 {
 	int shortArrLength;
